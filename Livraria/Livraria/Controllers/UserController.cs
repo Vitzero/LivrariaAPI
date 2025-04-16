@@ -1,68 +1,117 @@
 ﻿using Livraria.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using Livraria.Models;
 namespace Livraria.Controllers
 {
     public class UserController : BaseAPI
     {
-        [HttpGet("Livro")]
+        private static List<Livro> livros = new List<Livro>();
+        private static int ultimoId = 0;
+
+
+
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public IActionResult Get(int id)
         {
-            var response = new LivroResponse
+            Livro livro = null;
+            foreach (var item in livros)
             {
-                Autor = "Vitor",
-                Id = 1,
-                titulo = "Algoritmos"
+                if (item.Id == id)
+                {
+                    livro = item;
+                    break;
+                }
+            }
 
-            };
+            if (livro == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(livro);
+
+        }
+
+        [HttpGet("Livros")]
+        [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+        public IActionResult GetAll()
+        {
+            var response = new List<LivroResponse>();
+
+            foreach (var item in livros)
+            {
+                response.Add(new LivroResponse()
+                    {
+                        titulo = item.Nome,
+                        Autor = item.Autor,
+                        preco = item.Preco,
+                        genero = item.genero
+                    }
+                
+                );
+            }
+
+
             return Ok(response);
-
         }
 
         [HttpPost("Livro")]
         [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
 
-        public IActionResult Create()
+        public IActionResult CriarLivro([FromBody] Livro novoLivro)
         {
-            var response = new LivroRequest()
-            {
-                Autor = "Sei la",
-                Titulo = "Sei la2"
-            };
+            novoLivro.Id = ++ultimoId;
 
-            return Ok(response);
+            livros.Add(novoLivro);
+
+            return Ok();
         }
 
         [HttpPut("Livro")]
         [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
-        public IActionResult Update([FromBody] LivroRequest request)
+        public IActionResult Update([FromBody] LivroRequest request, int id)
         {
-            // Simula um "update" e retorna o resultado mockado
-            var response = new LivroResponse()
+;           
+            foreach (var item in livros)
             {
-                Id = 1,
-                titulo = request.Titulo,
-                Autor = request.Autor,
-                
-            };
+                if (item.Id == id)
+                {
+                    item.Nome = request.Titulo;
+                    item.Autor = request.Autor;
+                    item.genero = request.genero;
+                    item.Preco = request.preco;
 
-            return Ok(response);
-        }
+                    var response = new LivroResponse()
+                    {
+                        titulo = item.Nome,
+                        Autor = item.Autor,
+                        genero = item.genero,
+                        preco = item.Preco
+                    };
+
+                    return Ok(response);
 
 
-        [HttpDelete("Livro")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult Delete([FromBody] int id)
-        {
-            if (id != 1)
-            {
-                return NotFound();
+                }
             }
 
 
-            return Ok();
+            return NotFound();
+        }
+
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult Delete(int id)
+        {
+            var livro = livros.Find(l => l.Id == id);
+            if (livro == null)
+                return NotFound();
+
+            livros.Remove(livro);
+            return NoContent();
 
         }
 

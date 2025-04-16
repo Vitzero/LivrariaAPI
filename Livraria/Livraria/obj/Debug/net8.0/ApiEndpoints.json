@@ -2,11 +2,17 @@
   {
     "ContainingType": "Livraria.Controllers.UserController",
     "Method": "Get",
-    "RelativePath": "LivrariaAPI/User/Livro",
+    "RelativePath": "LivrariaAPI/User/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "Livraria.Dtos.LivroResponse",
@@ -21,12 +27,40 @@
   },
   {
     "ContainingType": "Livraria.Controllers.UserController",
-    "Method": "Create",
+    "Method": "Delete",
+    "RelativePath": "LivrariaAPI/User/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 204
+      }
+    ]
+  },
+  {
+    "ContainingType": "Livraria.Controllers.UserController",
+    "Method": "CriarLivro",
     "RelativePath": "LivrariaAPI/User/Livro",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "novoLivro",
+        "Type": "Livraria.Models.Livro",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "Livraria.Dtos.LivroResponse",
@@ -51,6 +85,11 @@
         "Name": "request",
         "Type": "Livraria.Dtos.LivroRequest",
         "IsRequired": true
+      },
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -67,23 +106,21 @@
   },
   {
     "ContainingType": "Livraria.Controllers.UserController",
-    "Method": "Delete",
-    "RelativePath": "LivrariaAPI/User/Livro",
-    "HttpMethod": "DELETE",
+    "Method": "GetAll",
+    "RelativePath": "LivrariaAPI/User/Livros",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Void",
-        "MediaTypes": [],
-        "StatusCode": 204
+        "Type": "Livraria.Dtos.LivroResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
       }
     ]
   }
