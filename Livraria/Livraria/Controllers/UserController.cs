@@ -1,120 +1,117 @@
-﻿using Livraria.Dtos;
+﻿using Livraria.Data;
+using Livraria.Dtos;
+using Livraria.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Livraria.Models;
-namespace Livraria.Controllers
+using Microsoft.EntityFrameworkCore;
+namespace Livraria.Controllers;
+
+public class UserController : BaseAPI
 {
-    public class UserController : BaseAPI
+    private LivroContext _context;
+
+    public UserController(LivroContext context)
     {
-        private static List<Livro> livros = new List<Livro>();
-        private static int ultimoId = 0;
+        _context = context;
+    }
 
 
-
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
-        public IActionResult Get(int id)
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    public IActionResult Get(int id)
+    {
+        Livro livro = null;
+        foreach (var item in _context.Livros)
         {
-            Livro livro = null;
-            foreach (var item in livros)
+            if (item.Id == id)
             {
-                if (item.Id == id)
-                {
-                    livro = item;
-                    break;
-                }
+                livro = item;
+                break;
             }
-
-            if (livro == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(livro);
-
         }
 
-        [HttpGet("Livros")]
-        [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        if (livro == null)
         {
-            var response = new List<LivroResponse>();
-
-            foreach (var item in livros)
-            {
-                response.Add(new LivroResponse()
-                    {
-                        titulo = item.Nome,
-                        Autor = item.Autor,
-                        preco = item.Preco,
-                        genero = item.genero
-                    }
-                
-                );
-            }
-
-
-            return Ok(response);
+            return NotFound();
         }
 
-        [HttpPost("Livro")]
-        [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+        return Ok(livro);
 
-        public IActionResult CriarLivro([FromBody] Livro novoLivro)
+    }
+
+    [HttpGet("Livros")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+    public IActionResult GetAll()
+    {
+        var response = new List<LivroResponse>();
+
+        foreach (var item in _context.Livros)
         {
-            novoLivro.Id = ++ultimoId;
-
-            livros.Add(novoLivro);
-
-            return Ok();
-        }
-
-        [HttpPut("Livro")]
-        [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
-        public IActionResult Update([FromBody] LivroRequest request, int id)
-        {
-;           
-            foreach (var item in livros)
+            response.Add(new LivroResponse()
             {
-                if (item.Id == id)
-                {
-                    item.Nome = request.Titulo;
-                    item.Autor = request.Autor;
-                    item.genero = request.genero;
-                    item.Preco = request.preco;
-
-                    var response = new LivroResponse()
-                    {
-                        titulo = item.Nome,
-                        Autor = item.Autor,
-                        genero = item.genero,
-                        preco = item.Preco
-                    };
-
-                    return Ok(response);
-
-
-                }
+                titulo = item.Titulo,
+                Autor = item.Autor,
+                preco = item.Preco,
+                genero = item.Genero
             }
 
+            );
+        }
 
+
+        return Ok(response);
+    }
+
+    [HttpPost("Livro")]
+    [ProducesResponseType(typeof(LivroResponse), StatusCodes.Status200OK)]
+
+    public IActionResult CriarLivro([FromBody] LivroRequest novoLivro)
+    {
+        Livro livro = new Livro()
+        {
+            Autor = novoLivro.Autor,
+            Genero = novoLivro.genero,
+            Preco = novoLivro.preco,
+            Titulo = novoLivro.Titulo
+        };
+
+        _context.Livros.Add(livro);
+        _context.SaveChanges();
+        return Ok();
+    }
+
+    [HttpPut("Livro")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult Update([FromBody] LivroRequest request, int id)
+    {
+        var Livro = _context.Livros.FirstOrDefault(l => l.Id == id);
+        if (Livro == null)
+        {
             return NotFound();
         }
 
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult Delete(int id)
-        {
-            var livro = livros.Find(l => l.Id == id);
-            if (livro == null)
-                return NotFound();
+        Livro.Titulo = request.Titulo;
+        Livro.Autor = request.Autor;
+        Livro.Genero = request.genero;
+        Livro.Preco = request.preco;
 
-            livros.Remove(livro);
-            return NoContent();
-
-        }
+        _context.SaveChanges();
+        return NoContent();
+    }
 
 
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult Delete(int id)
+    {
+        var livro = _context.Livros.FirstOrDefault(f => f.Id == id);
+        if (livro == null)
+            return NotFound();
+
+        _context.Livros.Remove(livro);
+
+        _context.SaveChanges();
+        return NoContent();
     }
 }

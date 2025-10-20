@@ -1,11 +1,16 @@
 
+using Livraria.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-  
+var connectionString = builder.Configuration.GetConnectionString("LivroConnection");
+builder.Services.AddDbContext<LivroContext>(opts => opts.UseSqlServer(connectionString));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
